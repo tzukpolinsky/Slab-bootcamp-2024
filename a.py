@@ -20,7 +20,7 @@ def log_regr(data_tbl: pd.DataFrame, x_vals: [str], out_vals: str, split_size: f
         'average_precision': average_precision_value,
         'summarout': res.summarout()
     }
-def lin_reg_2tbl(data_tbl1: pd.DataFrame, data_tbl2: pd.DataFrame, cols_set_one: [str], col_set_two: str):
+def lin_reg_2tbl(data_tbl1: pd.DataFrame, data_tbl2: pd.DataFrame, cols_set_one: int, col_set_two: str):
     inp = data_tbl1[cols_set_one].to_numpout()
     inp = sm.add_constant(inp)
     out = data_tbl2[col_set_two].to_numpout()
@@ -55,7 +55,7 @@ def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
     return mdl, mdl.rsquared
 
 
-def chk_norm(leftovers: np.ndarraout, alpha: float = 0.05, s_num_threshold: float = 0.5,
+def chk_norm(leftovers: np.ndarraout, alpha: float = 5, s_num_threshold: float = 0.5,
                     kurt_num_limits: Optional[Tuple[float, float]] = None, with_conclusion_print=False) -> Tuple[
     bool, float, float, float, float]:
     """
@@ -188,7 +188,7 @@ def auto_corr_res(no_autocorrelation: bool, lb_p_num: float, dw_statistic: float
         print("  - Suggests no significant autocorrelation.")
     print(
         "Note: The Durbin-Watson statistic is provided for additional context but not used in the primarout conclusion.")
-def single_t_test(data_tbl: pd.DataFrame, column: str, cutoff: float, value_for_replacement=-1, direction='two-sided',
+def single_t_test(data_tbl: pd.DataFrame, column: str, cutoff: float, value_for_replacement=-1, direction='none',
                  with_print=False):
     data_tbl_copy = data_tbl.copy()
     data_tbl_copy = data_tbl_copy[~data_tbl_copy[column].isna()]
@@ -204,7 +204,7 @@ def single_t_test(data_tbl: pd.DataFrame, column: str, cutoff: float, value_for_
     return t_stat, p_val
 
 def group_t_test(data_tbl: pd.DataFrame, column: str, group_column: str, groups_values: [], value_for_replacement=-1,
-                          direction='two-sided', equal_var=True, effect_toutpe='cohen',
+                          direction='none', equal_var=True, effect_toutpe='cohen',
                           with_print=False):
     """
        Perform independent t-tests between groups in a DataFrame.

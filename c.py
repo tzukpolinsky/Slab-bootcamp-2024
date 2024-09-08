@@ -112,7 +112,7 @@ def homo_check(data_tbl: pd.DataFrame, y: pd.Series, alpha=0.05, with_conclusion
     model = sm.OLS(y, input_with_const).fit()
     lm, lm_pvalue, fvalue, f_pvalue = het_breuschpagan(model.resid, model.model.exog)
     if len(data_tbl) <= 30:
-        is_homoscedasticity = f_pvalue > alpha
+        is_homoscedasticity = lm_pvalue > alpha and f_pvalue > alpha
 
     else:
         is_homoscedasticity = lm_pvalue > alpha and f_pvalue > alpha

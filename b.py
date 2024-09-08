@@ -76,7 +76,7 @@ def prep_data(data_set, bool_cat_feats, cont_vars):
     # Create preprocessing steps
     proc = ColumnTransformer(
         transformers=[
-            ('num', StandardScaler(), cont_vars),
+            ('num', MinMaxScaler(), cont_vars),
             ('cat', OneHotEncoder(drop='first'), bool_cat_feats)
         ])
 
