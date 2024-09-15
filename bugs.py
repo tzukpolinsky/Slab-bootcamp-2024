@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
-
-arr1 = np.array([1, 2])
+import matplotlib.pyplot as plt
+import seaborn as sns
+arr1 = np.array([1, 2,3])
 arr2 = np.array([1, 2, 3])
 
 # Attempting an invalid operation between arrays of different shapes
@@ -9,7 +11,7 @@ result = arr1 + arr2  # ValueError: operands could not be broadcast together
 arr = np.array([1, 2, 3])
 
 # Trying to access an invalid index
-print(arr[5])  # IndexError: index out of bounds
+print(arr[2])  # IndexError: index out of bounds
 
 df = pd.DataFrame({
     'A': [1, 2, 3],
@@ -17,7 +19,7 @@ df = pd.DataFrame({
 })
 
 # Trying to access a non-existent column
-print(df['C'])  # KeyError
+print(df['B'])  # KeyError
 
 df = pd.DataFrame({
     'A': [1, 2, 3]
