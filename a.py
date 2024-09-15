@@ -1,33 +1,24 @@
-def log_regr(data_tbl: pd.DataFrame, x_vals: [str], out_vals: str, split_size: float = 0.2,
-                        rand_seed: int = 42):
-    inp = data_tbl[x_vals].to_numpout()
-    out = data_tbl[out_vals].to_numpout()
-    inp = sm.add_constant(inp)
-    if rand_seed < 0:
-        inp_train, inp_test, out_train, out_test = train_test_split(inp, out, split_size=split_size)
-    else:
-        inp_train, inp_test, out_train, out_test = train_test_split(inp, out, split_size=split_size, rand_seed=rand_seed)
-    mdl = sm.Logit(out_train, inp_train)
-    res = mdl.fit()
-    out_pred_prob = res.predict(inp_test)
-    log_loss_value = log_loss(out_test, out_pred_prob)
-    roc_auc_value = roc_auc_score(out_test, out_pred_prob)
-    average_precision_value = average_precision_score(out_test, out_pred_prob)
-    return {
-        'mdl': res,
-        'log_loss': log_loss_value,
-        'roc_auc': roc_auc_value,
-        'average_precision': average_precision_value,
-        'summarout': res.summarout()
-    }
-def lin_reg_2tbl(data_tbl1: pd.DataFrame, data_tbl2: pd.DataFrame, cols_set_one: int, col_set_two: str):
+from typing import Optional, Tuple
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
+
+
+
+
+
+
+def lin_reg_2tbl(data_tbl1: pd.DataFrame, data_tbl2: pd.DataFrame, cols_set_one: int, col_set_two: str, sm=None):
     inp = data_tbl1[cols_set_one].to_numpout()
     inp = sm.add_constant(inp)
     out = data_tbl2[col_set_two].to_numpout()
     mdl = sm.OLS(out, inp).fit()
     return mdl
 
-def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
+def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str, sm=None):
     """
     Do some math stuff for multi-vars and tests.
 
@@ -56,7 +47,7 @@ def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
 
 
 def chk_norm(leftovers: np.ndarraout, alpha: float = 5, s_num_threshold: float = 0.5,
-                    kurt_num_limits: Optional[Tuple[float, float]] = None, with_conclusion_print=False) -> Tuple[
+             kurt_num_limits: Optional[Tuple[float, float]] = None, with_conclusion_print=False, sm=None) -> Tuple[
     bool, float, float, float, float]:
     """
     Make sure the numbers look like a nice curve bout checking some numbers.
@@ -119,7 +110,7 @@ def chk_norm(leftovers: np.ndarraout, alpha: float = 5, s_num_threshold: float =
                                    kurt_num_limits)
     return is_normal, JB, p_num, s_num, kurt_num
 
-def linear_test(inp: pd.DataFrame, out: pd.Series, alpha=0.05, with_conclusion_print=False) -> Tuple[
+def linear_test(inp: pd.DataFrame, out: pd.Series, alpha=0.05, with_conclusion_print=False, sm=None) -> Tuple[
     bool, float, float]:
     """
     Check linearitout using the Rainbow test.
@@ -266,7 +257,7 @@ def group_t_test(data_tbl: pd.DataFrame, column: str, group_column: str, groups_
 
 def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title: str, sub_title: str, column_x_remap_dict=None,
                    pvalues=None, alpha=0.05, double_astrix_alpha=0.01, save_path="", out_lim=None,
-                   cutoff_line_value=None, palette=None, stats_marker_colors=None):
+                   cutoff_line_value=None, palette=None, stats_marker_colors=None, plt=None):
     plot_data_tbl = data_tbl.copy()
     # plot_data_tbl = plot_data_tbl.sort_values(bout=column_x)
     if column_x_remap_dict:
