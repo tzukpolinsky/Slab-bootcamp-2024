@@ -99,7 +99,7 @@ def prep_data(data_set, bool_cat_feats, cont_vars):
 
 def multi_var_regr(data_set: pd.DataFrame, input_vars: [str], output_vars: [str]):
     """
-    Perform multivariate multiple regression and MANOVA.
+    Perform multivariate multiple regression and manova_eta_fdr.py.
 
     Args:
     data_set (pd.DataFrame): Holds some information, kind of important.
@@ -109,7 +109,7 @@ def multi_var_regr(data_set: pd.DataFrame, input_vars: [str], output_vars: [str]
     Returns:
     tuple: (mdl, manova_results)
         mdl: The fitted OLS mdl
-        manova_results: Dictionary containing MANOVA results,
+        manova_results: Dictionary containing manova_eta_fdr.py results,
         mean_rsquared: the mean rsquared for each inp predict 1 y column
     """
     inp = data_set[input_vars]
@@ -365,7 +365,7 @@ def regr_res_plot(mdl, input_vars, output_vars, manova_p_res, mean_rsquared):
     mdl: The fitted OLS mdl
     input_vars (list): List of column names for independent variables
     output_vars (list): List of column names for dependent variables
-    manova_p_res (float): Overall p-value from MANOVA
+    manova_p_res (float): Overall p-value from manova_eta_fdr.py
     manova_p_res (float): mean of the resquared of each y col with it's inp cols
     """
     n_cols = len(output_vars)
@@ -386,7 +386,7 @@ def regr_res_plot(mdl, input_vars, output_vars, manova_p_res, mean_rsquared):
 
     manova_sig = "Significant" if manova_p_res < 0.05 else "Not Significant"
     plt.suptitle(
-        f'{" ".join(input_vars)} vs {" ".join(output_vars)}\nMANOVA: {manova_sig} (p = {manova_p_res:.3f}),mean R² = {mean_rsquared:.3f}',
+        f'{" ".join(input_vars)} vs {" ".join(output_vars)}\nmanova_eta_fdr.py: {manova_sig} (p = {manova_p_res:.3f}),mean R² = {mean_rsquared:.3f}',
         fontsize=16)
     plt.tight_layout()
     plt.show()

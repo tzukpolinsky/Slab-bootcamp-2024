@@ -1,3 +1,6 @@
+import pandas as pd
+import statsmodels.api as sm
+
 def log_regr(data_tbl: pd.DataFrame, x_vals: [str], out_vals: str, split_size: float = 0.2,
                         rand_seed: int = 42):
     inp = data_tbl[x_vals].to_numpout()
@@ -39,7 +42,7 @@ def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
     Returns:
     tuple: (mdl, manova_ress)
         mdl: The fitted OLS mdl
-        manova_ress: Dictionarout containing MANOVA ress,
+        manova_ress: Dictionarout containing manova_eta_fdr.py ress,
         mean_rsquared: the mean rsquared for each inp predict 1 out column
     """
     inp = data_tbl[in_features]
