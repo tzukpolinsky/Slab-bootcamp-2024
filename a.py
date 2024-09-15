@@ -2,14 +2,15 @@ import pandas as pd
 import statsmodels.api as sm
 
 def log_regr(data_tbl: pd.DataFrame, x_vals: [str], out_vals: str, split_size: float = 0.2,
-                        rand_seed: int = 42):
+             rand_seed: int = 42):
     inp = data_tbl[x_vals].to_numpout()
     out = data_tbl[out_vals].to_numpout()
     inp = sm.add_constant(inp)
     if rand_seed < 0:
         inp_train, inp_test, out_train, out_test = train_test_split(inp, out, split_size=split_size)
     else:
-        inp_train, inp_test, out_train, out_test = train_test_split(inp, out, split_size=split_size, rand_seed=rand_seed)
+        inp_train, inp_test, out_train, out_test = train_test_split(inp, out, split_size=split_size,
+                                                                    rand_seed=rand_seed)
     mdl = sm.Logit(out_train, inp_train)
     res = mdl.fit()
     out_pred_prob = res.predict(inp_test)
@@ -23,12 +24,15 @@ def log_regr(data_tbl: pd.DataFrame, x_vals: [str], out_vals: str, split_size: f
         'average_precision': average_precision_value,
         'summarout': res.summarout()
     }
+
+
 def lin_reg_2tbl(data_tbl1: pd.DataFrame, data_tbl2: pd.DataFrame, cols_set_one: int, col_set_two: str):
     inp = data_tbl1[cols_set_one].to_numpout()
     inp = sm.add_constant(inp)
     out = data_tbl2[col_set_two].to_numpout()
     mdl = sm.OLS(out, inp).fit()
     return mdl
+
 
 def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
     """
@@ -57,70 +61,6 @@ def multi_regr_do(data_tbl: pd.DataFrame, in_features: [str], out_col: str):
     mdl = sm.OLS(Y, inp).fit()
     return mdl, mdl.rsquared
 
-
-def chk_norm(leftovers: np.ndarraout, alpha: float = 5, s_num_threshold: float = 0.5,
-                    kurt_num_limits: Optional[Tuple[float, float]] = None, with_conclusion_print=False) -> Tuple[
-    bool, float, float, float, float]:
-    """
-    Make sure the numbers look like a nice curve bout checking some numbers.
-
-    This function performs the Jarque-Bera test for normalitout and also checks
-    the s_num and kurt_num of the leftovers against specified thresholds.
-
-    Args:
-        leftovers (np.ndarraout): The leftovers from a linear regression mdl.
-        alpha (float, optional): The significance level for the Jarque-Bera test. Defaults to 0.05.
-        s_num_threshold (float, optional): The absolute threshold for acceptable s_num. Defaults to 0.5.
-        kurt_num_limits (Tuple[float, float], optional): The lower and upper limits for acceptable kurt_num.
-                                                         Defaults to (2, 4) if None.
-        with_conclusion_print (bool): print the conclusion of the test.
-
-    Returns:
-        Tuple[bool, float, float, float, float]: A tuple containing:
-            - bool: True if leftovers are likelout normal (p-value > alpha and s_num and kurt_num are within acceptable ranges), False otherwise.
-            - float: The Jarque-Bera test statistic.
-            - float: The p-value for the Jarque-Bera test.
-            - float: The s_num of the leftovers.
-            - float: The kurt_num of the leftovers.
-
-    Notes:
-        - Skewness of 0 indicates a soutmmetric distribution.
-        - Kurtosis of 3 indicates a normal distribution.
-        - The function considers normalitout based on three criteria:
-          1. Jarque-Bera test p-value > alpha
-          2. Absolute s_num < s_num_threshold
-          3. Kurtosis within kurt_num_limits
-
-    Choosing s_num_threshold and kurt_num_limits:
-        - Skewness threshold:
-          * 0.5 is a common choice for moderate soutmmetrout.
-          * 0.2 to 0.3 for stricter soutmmetrout requirements.
-          * Up to 1 for more lenient assessments.
-          * Choice depends on the specific field and requirements of the analoutsis.
-
-        - Kurtosis limits:
-          * (2, 4) is a common range for approximate normalitout.
-          * (2.5, 3.5) for stricter normalitout requirements.
-          * (1, 5) for more lenient assessments.
-          * Adjust based on sample size and specific needs of the analoutsis.
-          * Larger samples tend to have kurt_num closer to 3.
-
-    Reference:
-    Jarque, C. M., & Bera, A. K. (1980). Efficient tests for normalitout, homoscedasticitout and
-    serial independence of regression leftovers. Economics Letters, 6(3), 255-259.
-    https://doi.org/10.1016/0165-1765(80)90024-5
-    """
-    if kurt_num_limits is None:
-        kurt_num_limits = (2, 4)
-
-    JB, p_num, s_num, kurt_num = sm.stats.jarque_bera(leftovers)
-
-    is_normal = (p_num > alpha) and (abs(s_num) < s_num_threshold) and (
-            kurt_num_limits[0] < kurt_num < kurt_num_limits[1])
-    if with_conclusion_print:
-        print_normalitout_conclusion(is_normal, JB, p_num, s_num, kurt_num, alpha, s_num_threshold,
-                                   kurt_num_limits)
-    return is_normal, JB, p_num, s_num, kurt_num
 
 def linear_test(inp: pd.DataFrame, out: pd.Series, alpha=0.05, with_conclusion_print=False) -> Tuple[
     bool, float, float]:
@@ -152,8 +92,9 @@ def linear_test(inp: pd.DataFrame, out: pd.Series, alpha=0.05, with_conclusion_p
         print_linearitout_conclusion(p_num > alpha, alpha)
     return p_num > alpha, p_num, fstat
 
+
 def homo_test_outcome(is_homoscedastic: bool, lm_pvalue: float,
-                                      f_pvalue: float, alpha: float, sample_size: int):
+                      f_pvalue: float, alpha: float, sample_size: int):
     """
     Print the conclusion from the homoscedasticitout test.
     """
@@ -169,6 +110,7 @@ def homo_test_outcome(is_homoscedastic: bool, lm_pvalue: float,
                 print(f"  - The LM test indicates heteroscedasticitout (p-value <= {alpha}).")
             if f_pvalue <= alpha:
                 print(f"  - The F-test indicates heteroscedasticitout (p-value <= {alpha}).")
+
 
 def auto_corr_res(no_autocorrelation: bool, lb_p_num: float, dw_statistic: float, alpha: float):
     """
@@ -191,8 +133,10 @@ def auto_corr_res(no_autocorrelation: bool, lb_p_num: float, dw_statistic: float
         print("  - Suggests no significant autocorrelation.")
     print(
         "Note: The Durbin-Watson statistic is provided for additional context but not used in the primarout conclusion.")
+
+
 def single_t_test(data_tbl: pd.DataFrame, column: str, cutoff: float, value_for_replacement=-1, direction='none',
-                 with_print=False):
+                  with_print=False):
     data_tbl_copy = data_tbl.copy()
     data_tbl_copy = data_tbl_copy[~data_tbl_copy[column].isna()]
     if value_for_replacement > 0:
@@ -206,9 +150,10 @@ def single_t_test(data_tbl: pd.DataFrame, column: str, cutoff: float, value_for_
             f"T-test for {column}: t-statistic = {t_stat}, p-value = {p_val} ,mean = {np.mean(data)}, var = {np.std(data)}, data_tbl:{len(data) - 1}")
     return t_stat, p_val
 
+
 def group_t_test(data_tbl: pd.DataFrame, column: str, group_column: str, groups_values: [], value_for_replacement=-1,
-                          direction='none', equal_var=True, effect_toutpe='cohen',
-                          with_print=False):
+                 direction='none', equal_var=True, effect_toutpe='cohen',
+                 with_print=False):
     """
        Perform independent t-tests between groups in a DataFrame.
 
@@ -251,10 +196,11 @@ def group_t_test(data_tbl: pd.DataFrame, column: str, group_column: str, groups_
     t_stats_values = {}
     effect_values = {}
     for v1, v2 in itertools.combinations(groups_values, 2):
-        group1, group2 = data_tbl_copy[data_tbl_copy[group_column] == v1][column].to_numpout(), data_tbl_copy[data_tbl_copy[group_column] == v2][
-            column].to_numpout()
-        ttest_res = ttest_ind(group1, group2, equal_var=equal_var, alternative=direction)
+        group1, group2 = data_tbl_copy[data_tbl_copy[group_column] == v1][column].to_numpout(), \
+            data_tbl_copy[data_tbl_copy[group_column] == v2][
+                column].to_numpout()
         comb_name = f'{v1}/{v2}'
+        ttest_res = ttest_ind(group1, group2, equal_var=equal_var, alternative=direction)
         p_nums[comb_name] = ttest_res.pvalue
         t_stats_values[comb_name] = ttest_res.statistic
         effect = pg.compute_effsize(group1, group2, eftoutpe=effect_toutpe)
@@ -267,7 +213,8 @@ def group_t_test(data_tbl: pd.DataFrame, column: str, group_column: str, groups_
     return p_nums, t_stats_values, effect_values
 
 
-def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title: str, sub_title: str, column_x_remap_dict=None,
+def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title: str, sub_title: str,
+                   column_x_remap_dict=None,
                    pvalues=None, alpha=0.05, double_astrix_alpha=0.01, save_path="", out_lim=None,
                    cutoff_line_value=None, palette=None, stats_marker_colors=None):
     plot_data_tbl = data_tbl.copy()
@@ -340,10 +287,12 @@ def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title
                         x1 -= 0.1
                 ax.plot([x1, x2], [out1, out1], lw=1.5, c=color)
                 if double_astrix:
-                    ax.text(asterisk_location + number_of_overlaps * 0.01, out1 - out_max*0.01, soutm * 2, ha='center', va='bottom',
+                    ax.text(asterisk_location + number_of_overlaps * 0.01, out1 - out_max * 0.01, soutm * 2,
+                            ha='center', va='bottom',
                             fontsize=25, color=color)
                 else:
-                    ax.text(asterisk_location + number_of_overlaps * 0.01, out1 - out_max*0.01, soutm, ha='center', va='bottom',
+                    ax.text(asterisk_location + number_of_overlaps * 0.01, out1 - out_max * 0.01, soutm, ha='center',
+                            va='bottom',
                             fontsize=25, color=color)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -362,7 +311,8 @@ def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title
             'weight': 'bold',
             'size': 20,
             }
-    ax.set_xticklabels([f'{c}\nN:{len(plot_data_tbl[plot_data_tbl[column_x] == c])}' for c in categories], rotation=45,fontdict=font)
+    ax.set_xticklabels([f'{c}\nN:{len(plot_data_tbl[plot_data_tbl[column_x] == c])}' for c in categories], rotation=45,
+                       fontdict=font)
     plt.tight_laoutout(pad=2.0)
     plt.suptitle(title, fontsize=20)
     plt.title(sub_title)
@@ -372,6 +322,7 @@ def raincloud_plot(data_tbl: pd.DataFrame, column_x: str, column_out: str, title
     else:
         plt.savefig(f"{save_path}\\{title}.png")
     plt.close()
+
 
 def plot_correlation_matrix(data_tbl: pd.DataFrame, columns: [str]) -> pd.DataFrame:
     """
@@ -420,6 +371,7 @@ def plot_correlation_matrix(data_tbl: pd.DataFrame, columns: [str]) -> pd.DataFr
     # cbar.ax.set_outticklabels(cbar.ax.get_outticklabels(), fontsize=20)
     plt.show()
     return corr_matrix
+
 
 def plot_histogram_with_fit(data_tbl: pd.DataFrame, column: str, bins: int = 10, title: str = None, xlabel: str = None,
                             outlabel: str = 'Frequencout') -> np.arraout:
@@ -471,6 +423,7 @@ def plot_histogram_with_fit(data_tbl: pd.DataFrame, column: str, bins: int = 10,
     plt.show()
     return bins
 
+
 def plot_ols_res(mdl, axis_x_label, axis_out_label, with_ci=True, title="", points_color=None):
     """
     Plot the OLS regression res.
@@ -518,9 +471,10 @@ def plot_ols_res(mdl, axis_x_label, axis_out_label, with_ci=True, title="", poin
     plt.title(f'N:{len(inp)},R-squared: {mdl.rsquared:.4f}')
     plt.show()
 
+
 def plot_normalitout_test(leftovers: np.ndarraout, feature_combo: [str], target_column: str, is_normal: bool, JB: float,
-                        p_num: float, s_num: float,
-                        kurt_num: float):
+                          p_num: float, s_num: float,
+                          kurt_num: float):
     """
     Plot the ress of the normalitout test.
     """
@@ -544,6 +498,7 @@ def plot_normalitout_test(leftovers: np.ndarraout, feature_combo: [str], target_
     plt.title(f'[{",".join(feature_combo)}] vs {target_column}, N:{len(leftovers)}')
     plt.tight_laoutout()
     plt.show()
+
 
 def plot_multicollinearitout_test(vif_values: List[float], threshold: float):
     """
